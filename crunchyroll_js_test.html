@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+    <title>Crunchy Roll Test | Jamie Weber</title>
+
+    <style type="text/css">
+        #container {
+
+        }
+        .container {
+            height: 400px;
+            margin: 20px auto 0;
+            width: 400px;
+            line-height: 400px;
+            text-align: center;
+        }
+        .square {
+            height: 100px;
+            width: 100px;
+        }
+        .square:hover {
+            cursor: crosshair;
+        }
+        .center {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .blue {
+            border: 10px blue solid;
+        }
+        .red {
+            background-color: red;
+        }
+    </style>
+</head>
+
+<body>
+<div id="container" class="container blue">
+    <div id="square" class="square red draggable"></div>
+</div>
+
+<script type="text/javascript">
+(function(){
+    "use strict";
+
+    var draggable = (function(){
+        var currentEl = null,
+            difs = null;
+
+        function init() {
+            var draggables    = document.getElementsByClassName('draggable'),
+                numDraggables = draggables.length;
+            
+            for(var i = 0; i < numDraggables; i++) {
+                var j = i;
+
+                draggables[i].className = draggables[i].className+' center';
+
+                draggables[i].addEventListener('mousedown',function(e){
+                    currentEl = this;
+                    difs = getDragPoint(e);
+                    
+                    document.addEventListener('mousemove',onDrag, false);
+                }, false);
+
+                document.addEventListener('mouseup',function(e){
+                    var el = e.target;
+                    
+                    onDrop(e);
+                },false);
+            }
+        }
+
+        function onDrag(e) {
+            var el = currentEl,
+                elX = e.clientX,
+                elY = e.clientY,
+                bounds = getBounds(e);
+
+            if((elX-difs.dragX > bounds.minX) && (elX-difs.dragX+100 < bounds.maxX)) {
+                el.style.left = e.clientX-difs.dragX+'px';
+            }
+            
+            if(elY-difs.dragY > bounds.minY && elY-difs.dragY+100 < bounds.maxY) {
+                el.style.top = e.clientY-difs.dragY+'px';
+            }
+
+            currentEl.style.position = 'absolute';
+            currentEl.className = currentEl.className.replace(/center/,'');
+        }
+
+        function onDrop(e) {
+            document.removeEventListener('mousemove',onDrag,false);
+        }
+
+        function getDragPoint(e) {
+            var el = e.target,
+                difX = e.clientX-currentEl.offsetLeft,
+                difY = e.clientY-currentEl.offsetTop;
+
+            return {
+                dragX : difX,
+                dragY : difY
+            }
+        }
+
+        function getBounds(e) {
+            var el = e.target,
+                minBoundsX = currentEl.parentNode.offsetLeft,
+                minBoundsY = currentEl.parentNode.offsetTop,
+                maxBoundsX = currentEl.parentNode.offsetLeft+420,
+                maxBoundsY = currentEl.parentNode.offsetTop+420;
+
+            return {
+                minX : minBoundsX,
+                maxX : maxBoundsX,
+                minY : minBoundsY,
+                maxY : maxBoundsY
+            }
+        }
+
+        return {
+            init: init        
+        }
+    }());
+
+    draggable.init();
+}());
+</script>
+</body>
+</html>
